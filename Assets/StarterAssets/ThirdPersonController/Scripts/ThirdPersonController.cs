@@ -16,6 +16,7 @@ namespace StarterAssets
 	
 	public class ThirdPersonController : MonoBehaviour
 	{
+		
 		[Header("Player")]
 		[Tooltip("Move speed of the character in m/s")]
 		public float MoveSpeed = 2.0f;
@@ -78,11 +79,14 @@ namespace StarterAssets
 		private float _fallTimeoutDelta;
 
 		// animation IDs
+		private int _animIDPush;
+
 		private int _animIDSpeed;
 		private int _animIDGrounded;
 		private int _animIDJump;
 		private int _animIDFreeFall;
 		private int _animIDMotionSpeed;
+
 
 		private Animator _animator;
 		private CharacterController _controller;
@@ -118,7 +122,7 @@ namespace StarterAssets
 		private void Update()
 		{
 			_hasAnimator = TryGetComponent(out _animator);
-			
+			PushItem();
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
@@ -131,6 +135,7 @@ namespace StarterAssets
 
 		private void AssignAnimationIDs()
 		{
+			_animIDPush = Animator.StringToHash("Push");
 			_animIDSpeed = Animator.StringToHash("Speed");
 			_animIDGrounded = Animator.StringToHash("Grounded");
 			_animIDJump = Animator.StringToHash("Jump");
@@ -138,7 +143,43 @@ namespace StarterAssets
 			_animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
 		}
 
-		private void GroundedCheck()
+
+		private void PushItem()
+		{
+        
+
+		}
+	
+
+		
+
+        private void OnTriggerEnter(Collider other)
+        {
+
+
+			if (other.gameObject.tag == "PushItem")
+			{
+				_animator.SetBool("IsPushing", true);
+			}
+			
+			
+			
+		}
+        private void OnTriggerExit(Collider other)
+        {
+			if (other.gameObject.tag == "PushItem")
+			{
+				Debug.Log("Oh no box anymooore!");
+				_animator.SetBool("IsPushing", false);
+
+			}
+		}
+
+
+
+
+
+        private void GroundedCheck()
 		{
 			// set sphere position, with offset
 			Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
@@ -178,7 +219,7 @@ namespace StarterAssets
 			// note: Vector2's == operator uses approximation so is not floating point error prone, and is cheaper than magnitude
 			// if there is no input, set the target speed to 0
 			if (_input.move == Vector2.zero) targetSpeed = 0.0f;
-			
+
 			//changes
 			// a reference to the players current horizontal velocity
 			float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
@@ -228,9 +269,11 @@ namespace StarterAssets
 				_animator.SetFloat(_animIDSpeed, _animationBlend);
 				_animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
 			}
+			
 		}
 
-		private void JumpAndGravity()
+
+        private void JumpAndGravity()
 		{
 			if (Grounded)
 			{
